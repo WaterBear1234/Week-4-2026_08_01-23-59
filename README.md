@@ -1,13 +1,13 @@
 # Week 4
 
-Two pieces of work for Week 4: the completed Week 3 Go curriculum exercises,
+Two pieces of work for Week 4: the completed Week 3 Go exercises,
 and a repo demonstrating progress on Potential Extension (PEX) #4 — the
 deterministic core of a bilingual (English/Vietnamese) natural-language-to-
 PromQL assistant.
 
 ---
 
-## `week3-go-core` — Week 3 Go Exercises
+## `week3-go-core` 
 
 Six independent exercises, each in its own subfolder:
 
@@ -22,7 +22,7 @@ Six independent exercises, each in its own subfolder:
 
 ---
 
-## `PoC_PEX 4` — promql-lan
+## `PoC_PEX 4` 
 
 Changes made:
 
