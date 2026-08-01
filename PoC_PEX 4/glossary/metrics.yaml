@@ -1,0 +1,103 @@
+
+
+metrics:
+  cpu_usage:
+    promql_name: node_cpu_seconds_total
+    kind: counter
+    category: cpu
+    keywords: [cpu, cpu usage, processor, cpu time, cpu utilization]
+    keywords_vi: [cpu, sử dụng cpu, bộ xử lý, thời gian cpu]
+    valid_labels: [instance, cpu, mode]
+    unit: seconds
+
+  memory_available:
+    promql_name: node_memory_MemAvailable_bytes
+    kind: gauge
+    category: memory
+    keywords: [memory available, free memory, available ram, memory free]
+    keywords_vi: [bộ nhớ khả dụng, bộ nhớ trống, ram còn trống, bộ nhớ còn lại]
+    valid_labels: [instance]
+    unit: bytes
+
+  container_memory_usage:
+    promql_name: container_memory_usage_bytes
+    kind: gauge
+    category: memory
+    keywords: [container memory, pod memory usage, memory usage, ram usage]
+    keywords_vi: [bộ nhớ container, bộ nhớ pod, sử dụng bộ nhớ, dung lượng ram]
+    valid_labels: [namespace, pod, container, node]
+    unit: bytes
+
+  container_cpu_usage:
+    promql_name: container_cpu_usage_seconds_total
+    kind: counter
+    category: cpu
+    keywords: [container cpu, pod cpu usage, pod cpu, container cpu usage]
+    keywords_vi: [cpu container, cpu pod, sử dụng cpu pod, cpu của pod, cpu của container, mức sử dụng cpu container]
+    valid_labels: [namespace, pod, container, node]
+    unit: cores
+
+  pod_restarts:
+    promql_name: kube_pod_container_status_restarts_total
+    kind: counter
+    category: reliability
+    keywords: [restart, restarts, restarted, crash loop, crashloop]
+    keywords_vi: [khởi động lại, số lần khởi động lại, bị restart, restart lại]
+    valid_labels: [namespace, pod, container]
+    unit: count
+
+  network_receive_bytes:
+    promql_name: node_network_receive_bytes_total
+    kind: counter
+    category: network
+    keywords: [network receive, incoming traffic, network in, receive bytes, ingress traffic]
+    keywords_vi: [lưu lượng nhận, dữ liệu vào, băng thông nhận, mạng nhận]
+    valid_labels: [instance, device]
+    unit: bytes
+
+  network_transmit_bytes:
+    promql_name: node_network_transmit_bytes_total
+    kind: counter
+    category: network
+    keywords: [network transmit, outgoing traffic, network out, transmit bytes, egress traffic]
+    keywords_vi: [lưu lượng gửi, dữ liệu ra, băng thông gửi, mạng gửi]
+    valid_labels: [instance, device]
+    unit: bytes
+
+  disk_usage:
+    promql_name: node_filesystem_avail_bytes
+    kind: gauge
+    category: disk
+    keywords: [disk usage, disk space, storage usage, free disk, disk free]
+    keywords_vi: [dung lượng ổ đĩa, ổ đĩa trống, dung lượng lưu trữ, còn trống]
+    valid_labels: [instance, device, mountpoint]
+    unit: bytes
+
+  up:
+    promql_name: up
+    kind: gauge
+    category: reliability
+    keywords: [is up, target up, is target healthy, scrape status, is it down, is it reachable]
+    keywords_vi: [có hoạt động không, còn sống không, trạng thái, đang chạy không]
+    valid_labels: [instance, job]
+    unit: bool
+
+composites:
+  http_error_rate:
+    numerator: http_requests_total
+    numerator_filter: 'status=~"5.."'
+    denominator: http_requests_total
+    category: reliability
+    keywords: [error rate, error percentage, 5xx rate, failure rate, http errors]
+    keywords_vi: [tỷ lệ lỗi, phần trăm lỗi, tỷ lệ thất bại, lỗi http]
+    valid_labels: [namespace, service, method, route, instance]
+    unit: ratio
+
+  cpu_utilization_pct:
+    numerator: 'sum(rate(node_cpu_seconds_total{mode!="idle"}[__RANGE__])) by (instance)'
+    denominator: 'sum(rate(node_cpu_seconds_total[__RANGE__])) by (instance)'
+    category: cpu
+    keywords: [cpu utilization percentage, cpu percent, percent cpu busy, cpu load percentage]
+    keywords_vi: [phần trăm sử dụng cpu, tỷ lệ cpu, mức độ sử dụng cpu, cpu bận bao nhiêu phần trăm]
+    valid_labels: [instance]
+    unit: ratio

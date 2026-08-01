@@ -1,0 +1,63 @@
+version: "3.9"
+
+# Standalone / local-dev stack -- runs the full pipeline (API, self-hosted
+# Qwen, a demo Prometheus + node-exporter) without needing a real k8s
+# cluster, useful for testing the deterministic NLU/builder/verifier path
+# and the bilingual (EN/VI) matching in isolation.
+#
+# For a real deployment against an actual cluster (k8s-graph-aware
+# deployment/service resolution, kube-state-metrics/cAdvisor scraping via
+# kube-prometheus-stack), see k8s/ instead -- that runs the API *inside*
+# the cluster with in-cluster service-account auth, pointed at the
+# cluster's own Prometheus.
+#
+# Everything below stays on one internal bridge network; the only ports
+# exposed to the host are for local debugging (Prometheus/Ollama UIs,
+# the API itself) -- nothing here reaches the internet at runtime.
+
+networks:
+  lan:
+    driver: bridge
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+    ports:
+      - "9090:9090"
+    networks: [lan]
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    networks: [lan]
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks: [lan]
+    # Pull the model once after first start:
+    #   docker compose exec ollama ollama pull qwen2.5:7b
+
+  api:
+    build: .
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=qwen2.5:7b
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GLOSSARY_PATH=glossary/metrics.yaml
+      - LOG_DIR=/app/log
+      - K8S_ENABLED=false
+    depends_on: [prometheus, ollama]
+    ports:
+      - "8000:8000"
+    networks: [lan]
+
+volumes:
+  ollama-data:
